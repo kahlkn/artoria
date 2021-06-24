@@ -4,6 +4,7 @@ package artoria.common;
  * Internal error code.
  * @author Kahle
  */
+@Deprecated
 public enum InternalErrorCode implements ErrorCode {
     /**
      * No login.
