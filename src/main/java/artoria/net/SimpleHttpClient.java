@@ -407,9 +407,9 @@ public class SimpleHttpClient implements HttpClient {
         }
     }
 
-    private void writeMultipartData(HttpRequest request, String mimeBoundary, BufferedWriter writer) throws IOException {
+    private void writeMultipartData(HttpRequest request, String mimeBoundary, OutputStream outputStream, BufferedWriter writer) throws IOException {
         Collection<KeyValue<String, Object>> parameters = request.getParameters();
-        String charset = request.getCharset();
+//        String charset = request.getCharset();
         boolean first = true;
         for (KeyValue<String, Object> keyValue : parameters) {
             String key = keyValue.getKey();
@@ -419,22 +419,18 @@ public class SimpleHttpClient implements HttpClient {
             writer.append(DOUBLE_MINUS).append(mimeBoundary).append(NEWLINE);
             writer.append("Content-Disposition: form-data; name=\"");
             writer.append(encodeMimeName(key)).append(DOUBLE_QUOTE);
-            Reader reader = null;
+            InputStream in = null;
             try {
                 String fileName;
                 if (val instanceof FileEntity) {
                     FileEntity fileEntity = (FileEntity) val;
                     fileName = fileEntity.getName();
-                    InputStream in = fileEntity.getInputStream();
-                    reader = new InputStreamReader(in, charset);
-                    reader = new BufferedReader(reader);
+                    in = fileEntity.getInputStream();
                 }
                 else if (val instanceof File) {
                     File file = (File) val;
                     fileName = file.getName();
-                    InputStream in = new FileInputStream(file);
-                    reader = new InputStreamReader(in, charset);
-                    reader = new BufferedReader(reader);
+                    in = new FileInputStream(file);
                 }
                 else {
                     fileName = null;
@@ -447,8 +443,8 @@ public class SimpleHttpClient implements HttpClient {
                     writer.append("application/octet-stream");
                 }
                 writer.append(NEWLINE).append(NEWLINE);
-                if (reader != null) {
-                    IOUtils.copyLarge(reader, writer);
+                if (in != null) {
+                    IOUtils.copyLarge(in, outputStream);
                 }
                 //else if (val instanceof) {
                 //}
@@ -458,7 +454,7 @@ public class SimpleHttpClient implements HttpClient {
                 writer.flush();
             }
             finally {
-                CloseUtils.closeQuietly(reader);
+                CloseUtils.closeQuietly(in);
             }
         }
         writer.append(NEWLINE).append(DOUBLE_MINUS);
@@ -475,7 +471,7 @@ public class SimpleHttpClient implements HttpClient {
             BufferedWriter writer = new BufferedWriter(osw);
             if (mimeBoundary != null) {
                 // Boundary will be set if we're in multipart mode.
-                writeMultipartData(request, mimeBoundary, writer);
+                writeMultipartData(request, mimeBoundary, outputStream, writer);
             }
             else if (request.getBody() != null) {
                 writeBodyData(request, writer);
