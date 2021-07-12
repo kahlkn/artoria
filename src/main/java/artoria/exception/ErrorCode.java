@@ -1,14 +1,15 @@
-package artoria.common;
+package artoria.exception;
 
 /**
- * Error code.
+ * The error code.
+ * @see <a href="https://en.wikipedia.org/wiki/Error_code">Error code</a>
  * @author Kahle
  */
 public interface ErrorCode {
 
     /**
-     * The string code of the error.
-     * @return The string code
+     * The code of the error.
+     * @return The code
      */
     String getCode();
 
