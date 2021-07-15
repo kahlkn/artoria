@@ -15,13 +15,13 @@ import static artoria.io.IOUtils.EOF;
 /**
  * Template renderer simple implement by jdk.
  */
-public class SimpleTemplateEngine extends AbstractTemplateEngine {
+public class SimpleTemplateEngine extends AbstractRichTemplateEngine {
     private static final String LEFT_PLACEHOLDER = DOLLAR_SIGN + LEFT_CURLY_BRACKET;
     private static final String RIGHT_PLACEHOLDER = RIGHT_CURLY_BRACKET;
     private static final char ESCAPE_SYMBOL = '\\';
 
     @Override
-    public void render(Object data, Writer output, String logTag, String template) {
+    public void render(Object data, Writer output, String tag, String template) {
         Assert.notNull(output, "Parameter \"output\" must not null. ");
         Assert.notNull(data, "Parameter \"data\" must not null. ");
         if (StringUtils.isBlank(template)) { return; }
