@@ -10,10 +10,10 @@ import java.nio.charset.Charset;
 
 import static artoria.common.Constants.DEFAULT_ENCODING_NAME;
 
-public abstract class AbstractRichTemplateEngine implements RichTemplateEngine {
+public abstract class AbstractRichTemplateEngine extends AbstractStringTemplateEngine implements RichTemplateEngine {
 
     @Override
-    public void render(Object data, Writer output, String tag, Reader reader) {
+    public void render(Object data, Writer writer, String tag, Reader reader) {
         Assert.notNull(reader, "Parameter \"reader\" must not null. ");
         String template;
         try {
@@ -24,17 +24,17 @@ public abstract class AbstractRichTemplateEngine implements RichTemplateEngine {
         catch (IOException e) {
             throw new RenderException(e);
         }
-        render(data, output, tag, template);
+        render(data, writer, tag, template);
     }
 
     @Override
-    public void render(Object data, Writer output, String tag, String template) {
+    public void render(Object data, Writer writer, String tag, String template) {
 
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void render(String name, String encoding, Object data, Writer output) {
+    public void render(String name, String encoding, Object data, Writer writer) {
         Assert.notBlank(name, "Parameter \"name\" must not blank. ");
         InputStream inputStream = ClassLoaderUtils.getResourceAsStream(name, getClass());
         if (inputStream == null) {
@@ -42,7 +42,7 @@ public abstract class AbstractRichTemplateEngine implements RichTemplateEngine {
         }
         if (StringUtils.isBlank(encoding)) { encoding = DEFAULT_ENCODING_NAME; }
         Charset charset = Charset.forName(encoding);
-        render(data, output, name, new InputStreamReader(inputStream, charset));
+        render(data, writer, name, new InputStreamReader(inputStream, charset));
     }
 
 }

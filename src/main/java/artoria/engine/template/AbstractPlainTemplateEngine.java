@@ -8,34 +8,22 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
-public abstract class AbstractPlainTemplateEngine implements PlainTemplateEngine {
+public abstract class AbstractPlainTemplateEngine extends AbstractStringTemplateEngine implements PlainTemplateEngine {
 
     @Override
-    public void render(Object data, Writer output, String tag, Reader reader) {
+    public void render(Object data, Writer writer, String tag, Reader reader) {
+        Assert.notNull(writer, "Parameter \"writer\" must not null. ");
         Assert.notNull(reader, "Parameter \"reader\" must not null. ");
-        String template;
-        try {
-            reader = reader instanceof BufferedReader
-                    ? reader : new BufferedReader(reader);
-            template = IOUtils.toString(reader);
-        }
-        catch (IOException e) {
-            throw new RenderException(e);
-        }
-        render(data, output, tag, template);
-    }
-
-    @Override
-    public void render(Object data, Writer output, String tag, String template) {
-        Assert.notNull(output, "Parameter \"output\" must not null. ");
-        if (template == null) { return; }
         if (!(data == null || data instanceof Object[])) {
             throw new IllegalArgumentException("Parameter \"data\" must instance of Object[]. ");
         }
         Object[] arguments = (Object[]) data;
-        String render = render(template, arguments);
         try {
-            output.write(render);
+            reader = reader instanceof BufferedReader
+                    ? reader : new BufferedReader(reader);
+            String template = IOUtils.toString(reader);
+            String render = render(template, arguments);
+            writer.write(render);
         }
         catch (IOException e) {
             throw new RenderException(e);
