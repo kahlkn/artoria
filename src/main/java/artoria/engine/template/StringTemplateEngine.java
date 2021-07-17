@@ -4,7 +4,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 /**
- * The template engine.
+ * The template engine for handling strings.
  * @author Kahle
  */
 public interface StringTemplateEngine extends TemplateEngine {

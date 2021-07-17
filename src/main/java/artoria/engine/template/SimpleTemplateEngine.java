@@ -21,7 +21,7 @@ public class SimpleTemplateEngine extends AbstractRichTemplateEngine {
     private static final String RIGHT_PLACEHOLDER = RIGHT_CURLY_BRACKET;
     private static final char ESCAPE_SYMBOL = '\\';
 
-    protected String render(String template, Map<String, Object> data) throws ParseException {
+    protected String render(String template, Map data) throws ParseException {
         StringBuilder result = new StringBuilder();
         int finish = template.length(), begin = ZERO, end = ZERO, escapeIndex;
         while (end != finish) {
@@ -56,7 +56,7 @@ public class SimpleTemplateEngine extends AbstractRichTemplateEngine {
         Assert.notNull(writer, "Parameter \"output\" must not null. ");
         Assert.notNull(data, "Parameter \"data\" must not null. ");
         if (StringUtils.isBlank(template)) { return; }
-        Map<String, Object> dataMap = cast(data instanceof Map ? (Map) data : BeanUtils.beanToMap(data));
+        Map dataMap = data instanceof Map ? (Map) data : BeanUtils.createBeanMap(data);
         try {
             /*for (int finish = template.length(), begin = ZERO, end = ZERO, escapeIndex; end != finish; ) {
                 end = template.indexOf(LEFT_PLACEHOLDER, begin);

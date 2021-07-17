@@ -2,30 +2,42 @@ package artoria.engine.template;
 
 import artoria.beans.BeanUtils;
 import artoria.util.Assert;
-import artoria.util.StringUtils;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import static artoria.util.ObjectUtils.cast;
-
 public abstract class AbstractStringTemplateEngine implements StringTemplateEngine {
 
-    @Override
-    public void render(Object data, OutputStream out, String tag, InputStream in) {
+    protected Charset getEncoding(Object data) {
         Assert.notNull(data, "Parameter \"data\" must not null. ");
-        Map<String, Object> dataMap = cast(data instanceof Map ? (Map) data : BeanUtils.beanToMap(data));
-        String encoding = (String) dataMap.get("encoding");
-        if (StringUtils.isBlank(encoding)) {
-            encoding = (String) dataMap.get("charset");
+        Map map = data instanceof Map ? (Map) data : BeanUtils.createBeanMap(data);
+        Object encodingObj = map.get("encoding");
+        if (encodingObj instanceof Charset) {
+            return (Charset) encodingObj;
         }
-        Assert.notBlank(encoding, "Parameter \"encoding\" must not null. ");
-        Charset charset = Charset.forName(encoding);
-        render(data, new OutputStreamWriter(out, charset), tag, new InputStreamReader(in, charset));
+        if (encodingObj instanceof String) {
+            return Charset.forName((String) encodingObj);
+        }
+        Object charsetObj = map.get("charset");
+        if (charsetObj instanceof Charset) {
+            return (Charset) charsetObj;
+        }
+        if (charsetObj instanceof String) {
+            return Charset.forName((String) charsetObj);
+        }
+        throw new IllegalArgumentException("Parameter \"data\" must contain encoding information. ");
+    }
+
+    @Override
+    public void render(Object data, OutputStream output, String tag, InputStream input) {
+        Assert.notNull(output, "Parameter \"output\" must not null. ");
+        Assert.notNull(input, "Parameter \"input\" must not null. ");
+        Assert.notNull(data, "Parameter \"data\" must not null. ");
+        Charset encoding = getEncoding(data);
+        Writer writer = new OutputStreamWriter(output, encoding);
+        Reader reader = new InputStreamReader(input, encoding);
+        render(data, writer, tag, reader);
     }
 
 }
